@@ -1,0 +1,11 @@
+{
+  "liveServer.settings.root": "/",
+  "liveServer.settings.mount": [["/", "./"]],
+  "liveServer.settings.file": "index.html",
+  "liveServer.settings.rewriteRules": [
+    {
+      "source": "/(.*)",
+      "target": "/index.html"
+    }
+  ]
+}

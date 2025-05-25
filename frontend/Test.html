@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <style>
+    .modal {
+      width: 300px;
+      height: 300px;
+    }
+    .modal .modal-login .title {
+      text-align: center;
+    }
+    .modal .modal-login .login-content {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      align-items: center;
+      justify-content: center;
+    }
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-size: 14px;
+    }
+
+    .login {
+      padding: 10px;
+    }
+    #agree-terms {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+    }
+    #btn-login {
+      padding: 5px 70px;
+      background-color: rgb(218, 172, 103);
+      border: none;
+      color: #fff;
+      font-weight: 700;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    #btn-login:hover {
+      background-color: rgb(231, 157, 47);
+    }
+  </style>
+  <body>
+    <div class="modal">
+      <div class="modal-login">
+        <h2 class="title">Login</h2>
+        <div class="login-content">
+          <input type="text" class="login user-name" placeholder="Username" />
+          <input
+            type="password"
+            class="login password"
+            placeholder="Password"
+          />
+          <div class="checkbox-group">
+            <input type="checkbox" id="agree-terms" />
+            <label for="login-agree-terms">Tôi đồng ý điều khoản</label>
+          </div>
+          <input type="submit" id="btn-login" value="Đăng ký" />
+        </div>
+      </div>
+    </div>
+    <script></script>
+  </body>
+</html>
