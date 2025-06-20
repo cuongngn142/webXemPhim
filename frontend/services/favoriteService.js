@@ -34,3 +34,24 @@ export async function fetchListUserFavorites(userID) {
   }
 }
 
+export async function fetchDeleteFavorite(data) {
+  try {
+    const response = await fetch(`${API_URL}/api/deleteFavorite`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      throw new Error("Network đang chưa ổn định!");
+    }
+
+    const result = await response.json();
+    return result;
+  } catch (error) {
+    console.error("Thất bại khi fetch deleteFavorite:", error);
+    return null;
+  }
+}

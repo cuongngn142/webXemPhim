@@ -36,7 +36,8 @@ const registerUser = async (req, res) => {
 
 const getUserById = async (req, res) => {
   try {
-    const users = await userModel.getUserById();
+    const id = req.params.userId;
+    const users = await userModel.getUserById(id);
     res.json(users);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -61,10 +62,39 @@ const checkLogin = async (req, res) => {
   }
 };
 
+const updateUser = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { username, email, fullName } = req.body;
+    if (!username || !email || !fullName) {
+      return res.status(400).json({ error: "Vui lòng nhập đầy đủ thông tin!" });
+    }
+    const result = await userModel.updateUser(userId, {
+      username,
+      email,
+      fullName,
+    });
+    res.json({ message: "Cập nhật user thành công!", changes: result.changes });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+const deleteUser = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const result = await userModel.deleteUser(userId);
+    res.json({ message: "Xóa user thành công!", changes: result.changes });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
 
 module.exports = {
   getAllUsers,
   registerUser,
   getUserById,
   checkLogin,
+  updateUser,
+  deleteUser,
 };

@@ -4,8 +4,9 @@ import { fetchHighRatedMovies, fetchMoreMovies} from "../services/movieService.j
 // prettier-ignore
 import { fetchCheckLogin, fetchRegisterUser } from "../services/userService.js";
 // prettier-ignore
-import { fetchAddFavorite, fetchListUserFavorites,} from "../services/favoriteService.js";
-
+import { fetchAddFavorite, fetchListUserFavorites, fetchDeleteFavorite} from "../services/favoriteService.js";
+import { renderPage } from "../main.js";
+import slugify from "../components/slugify.js";
 const API_URL = "http://localhost:3000";
 
 export function renderHomePage() {
@@ -76,40 +77,72 @@ export function renderHomePage() {
 `;
 }
 
-export function renderEventListener() {
+export function renderHomeEventListener() {
   renderRecommendedMovies();
   renderMovies();
   focusListMovie();
   searchMovies();
-  openModal();
-  changeForm();
-  handleLogout();
   handleAddUserFavoriteMovie();
-  document
-    .getElementById("btn-register")
-    .addEventListener("click", handleRegisterSubmit);
-  document
-    .getElementById("btn-login")
-    .addEventListener("click", handleLoginSubmit);
+  handleMovieClickEvent();
 }
 
-function changeURLWithMovieId() {
-  const movieItem = document.querySelectorAll(".movies-item");
-  const btnPlay = document.querySelector(".btn-play");
-  const activeSlide = document.querySelector(".slide.active");
-
-  const movieId = activeSlide.getAttribute("data-id");
-
-  movieItem.forEach((item) => {
-    const movieID = item.dataset.id;
-    item.addEventListener("click", () => {
-      history.pushState({}, "", `/movie/${movieID}`);
-    });
+//xử lý sự kiện click vào phim
+export function handleMovieClickEvent() {
+  /*
+  Event Delegation (ủy quyền sự kiện) là một kỹ thuật trong JavaScript giúp bạn xử lý các sự kiện (event) trên nhiều phần tử con 
+  bằng cách gắn một trình xử lý sự kiện (event listener) duy nhất lên phần tử cha.
+  VD: 
+  <ul id="movie-list">
+  <li class="movie-item" data-id="1">Phim 1</li>
+  <li class="movie-item" data-id="2">Phim 2</li>
+  </ul>
+  Event Delegation:
+  document.getElementById("movie-list").addEventListener("click", (e) => {
+  const item = e.target.closest(".movie-item");
+  if (item) {
+    console.log("Clicked movie ID:", item.dataset.id);
+  }
   });
+  });
+  No Event Delegation: mỗi ptu con gọi 1 sự kiện
+  document.querySelectorAll(".movie-item").forEach(item => {
+  item.addEventListener("click", () => {
+    console.log("Clicked:", item.dataset.id);
+  });
+  */
+  document.body.addEventListener("click", (e) => {
+    // Xử lý click vào item phim
+    const movieItem = e.target.closest(".movies-item");
+    if (movieItem) {
+      const movieName = movieItem.querySelector(".movie-img").alt;
+      const movieID = movieItem.dataset.id;
+      if (movieID) {
+        const targetPath = `/detail/movie/${movieID}/${movieName}`;
+        if (location.pathname !== targetPath) {
+          history.pushState({}, "", targetPath);
+        }
+        renderPage(targetPath);
+        return;
+      }
+    }
 
-  btnPlay.addEventListener("click", () => {
-    if (!movieId) return;
-    history.pushState({}, "", `/movie/${movieId}`);
+    // Xử lý click vào nút play trong banner
+    const playBtn = e.target.closest(".btn-play");
+    if (playBtn) {
+      const activeSlide = document.querySelector(".slide.active");
+      const movieID = activeSlide?.dataset.id;
+
+      if (movieID) {
+        const movieImg = activeSlide.querySelector("img");
+        const movieName = movieImg.alt;
+        const targetPath = `/detail/movie/${movieID}/${movieName}`;
+        //Để tránh push nhiều bản sao giống nhau của cùng một trang vào history stack
+        if (location.pathname !== targetPath) {
+          history.pushState({}, "", targetPath);
+        }
+        renderPage(targetPath);
+      }
+    }
   });
 }
 
@@ -148,7 +181,7 @@ async function renderRecommendedMovies() {
     const img = document.createElement("img");
     img.classList.add("movie-img");
     img.src = `${API_URL}${movie.PosterUrl}`;
-    img.alt = movie.Title;
+    img.alt = slugify(movie.Title);
     const name = document.createElement("h2");
     name.classList.add("movie-name");
     name.textContent = movie.Title;
@@ -160,7 +193,6 @@ async function renderRecommendedMovies() {
   });
   setupSlider();
   setupSubSlider("high-rated");
-  changeURLWithMovieId();
 }
 
 //rewnder list các phim khác
@@ -181,7 +213,7 @@ async function renderMovies() {
       const img = document.createElement("img");
       img.classList.add("movie-img");
       img.src = `${API_URL}${movie.PosterUrl}`;
-      img.alt = movie.Title;
+      img.alt = slugify(movie.Title);
 
       const name = document.createElement("h2");
       name.classList.add("movie-name");
@@ -192,7 +224,6 @@ async function renderMovies() {
     });
 
     setupSubSlider("newest");
-    changeURLWithMovieId();
   }
 
   // 2. Render theo từng thể loại
@@ -215,7 +246,7 @@ async function renderMovies() {
       const img = document.createElement("img");
       img.classList.add("movie-img");
       img.src = `${API_URL}${movie.PosterUrl}`;
-      img.alt = movie.Title;
+      img.alt = slugify(movie.Title);
 
       const name = document.createElement("h2");
       name.classList.add("movie-name");
@@ -231,7 +262,7 @@ async function renderMovies() {
 async function searchMovies() {
   const input = document.querySelector(".search-input");
   const dropdown = document.querySelector(".dropdown-result");
-
+  if (!input) return;
   let movies = [];
   movies = await fetchMoreMovies();
 
@@ -285,7 +316,7 @@ async function searchMovies() {
 }
 
 // prettier-ignore
-async function handleLoginSubmit(e) {
+export async function handleLoginSubmit(e) {
   e.preventDefault();
   const userName = document.querySelector(".modal-login .user-name").value.trim();
   const password = document.querySelector(".modal-login .password").value;
@@ -317,6 +348,7 @@ async function handleLoginSubmit(e) {
       document.body.style.overflow = "";
 
       localStorage.setItem('userId', user.UserId);
+      localStorage.setItem("userName", user.FullName);
       const userID = localStorage.getItem('userId');
       getListUserFavoriteMovies(userID); 
     }else {
@@ -328,10 +360,10 @@ async function handleLoginSubmit(e) {
   }
 }
 
-function handleLogout() {
+export function handleLogout() {
   const userInfoSuccess = document.querySelector(".user-info-login-success");
   const logoutBtn = document.getElementById("btn-logout");
-
+  if (!userInfoSuccess) return;
   userInfoSuccess.addEventListener("click", (e) => {
     // Chỉ toggle khi click vào chính container hoặc dropdown-toggle, tránh vô tình đóng mở do bấm logout
     if (e.target !== logoutBtn) {
@@ -349,6 +381,7 @@ function handleLogout() {
     const count = document.querySelector(".favorite-movie p");
     if (count) count.textContent = "0";
     localStorage.removeItem("userId");
+    localStorage.removeItem("userName");
   });
 
   document.addEventListener("click", (e) => {
@@ -359,7 +392,7 @@ function handleLogout() {
 }
 
 // prettier-ignore
-async function handleRegisterSubmit(e) {
+export async function handleRegisterSubmit(e) {
   e.preventDefault();
   const fullName = document
     .querySelector(".modal-register .full-name")
@@ -405,6 +438,7 @@ async function handleRegisterSubmit(e) {
 
 }
 
+//focus tới mục chứa id đó
 function focusListMovie() {
   document.querySelectorAll('a[href^="#"]').forEach((link) => {
     link.addEventListener("click", function (e) {
@@ -421,40 +455,51 @@ function focusListMovie() {
 
 // xử lý favorites
 async function handleAddUserFavoriteMovie() {
-  document
-    .querySelector(".btn-favorite")
-    .addEventListener("click", async () => {
-      const activeSlide = document.querySelector(".slide.active");
+  const btn = document.querySelector(".btn-favorite");
 
-      const userID = localStorage.getItem("userId");
-      const movieId = activeSlide.getAttribute("data-id");
+  if (!btn) return;
+  btn.addEventListener("click", async () => {
+    const activeSlide = document.querySelector(".slide.active");
 
-      if (!userID) {
-        alert("Vui lòng đăng nhập để thêm vào yêu thích.");
-        return;
+    const userID = localStorage.getItem("userId");
+    const movieId = activeSlide.getAttribute("data-id");
+
+    if (!userID) {
+      alert("Vui lòng đăng nhập để thêm vào yêu thích.");
+      return;
+    }
+    const FavoriteMovie = await fetchListUserFavorites(userID);
+
+    const exists = FavoriteMovie.some(
+      (movie) => movie.MovieId === Number(movieId)
+    );
+    // getAttribute(...) luôn trả về kiểu string, bất kể giá trị ban đầu là số hay không.
+    //nên const movieId = activeSlide.getAttribute("data-id");
+    // đang là string còn movie.MovieId là number so === ko là false
+    if (exists) {
+      alert("Bộ phim này đã tồn tại trong kho yêu thích!");
+      return;
+    }
+    const dataAdd = {
+      userId: userID,
+      movieId: movieId,
+    };
+
+    try {
+      const data = await fetchAddFavorite(dataAdd);
+
+      if (data && data.message) {
+        alert(data.message);
       }
-      const dataAdd = {
-        userId: userID,
-        movieId: movieId,
-      };
-      try {
-        const data = await fetchAddFavorite(dataAdd);
-
-        if (data && data.message) {
-          alert(data.message);
-        } else {
-          alert("Đã thêm vào danh sách yêu thích!");
-        }
-      } catch (error) {
-        alert("Thêm vào yêu thích thất bại!");
-        console.error("Lỗi thêm yêu thích:", error);
-      }
-    });
+    } catch (error) {
+      alert("Thêm vào yêu thích thất bại!");
+      console.error("Lỗi thêm yêu thích:", error);
+    }
+  });
 }
 
 // lấy danh sách favorites của user
-async function getListUserFavoriteMovies(userID) {
-  console.log(userID);
+export async function getListUserFavoriteMovies(userID) {
   const list = await fetchListUserFavorites(userID);
   const count = document.querySelector(".favorite-movie p");
   count.textContent = list.length;
@@ -524,11 +569,12 @@ function setupSlider() {
 }
 
 //open modal
-function openModal() {
+export function openModal() {
   const btn = document.querySelector(".user-info");
   const loginModal = document.querySelector(".modal-login");
   const registerModal = document.querySelector(".modal-register");
   const overlay = document.querySelector(".modal-overlay");
+  if (!loginModal || !registerModal) return;
 
   btn.addEventListener("click", () => {
     loginModal.style.display = "block";
@@ -550,7 +596,7 @@ function openModal() {
   });
 }
 
-function changeForm() {
+export function changeForm() {
   const loginForm = document.querySelector(".modal-login");
   const registerForm = document.querySelector(".modal-register");
 

@@ -43,10 +43,33 @@ const addUserFavoriteMovie = async (req, res) => {
   }
 };
 
+const deleteUserFavoriteMovie = async (req, res) => {
+  try {
+    const { userId, movieId } = req.body;
+
+    const changes = await favoriteModel.deleteUserFavoriteMovie(
+      userId,
+      movieId
+    );
+
+    if (changes > 0) {
+      return res.json({ message: "Đã xóa khỏi yêu thích" });
+    } else {
+      return res
+        .status(404)
+        .json({ error: "Phim không tồn tại trong kho yêu thích" });
+    }
+  } catch (err) {
+    console.error("Xóa lỗi:", err);
+    res.status(500).json({ error: "Lỗi khi xóa yêu thích" });
+  }
+};
+
 module.exports = {
   getAllUserFavoriteMovies,
   getUserFavoriteMovie,
   addUserFavoriteMovie,
+  deleteUserFavoriteMovie,
 };
 
 /*

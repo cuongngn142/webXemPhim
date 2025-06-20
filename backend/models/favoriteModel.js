@@ -51,10 +51,21 @@ const addUserFavoriteMovie = (UserId, MovieId) => {
   });
 };
 
+const deleteUserFavoriteMovie = (UserId, MovieId) => {
+  return new Promise((resolve, reject) => {
+    const deleteQuery = `DELETE FROM Favorites WHERE UserId = ? AND MovieId = ?;`;
+    db.run(deleteQuery, [UserId, MovieId], function (err) {
+      if (err) return reject(err);
+      const FavoriteId = this.changes;
+      resolve(FavoriteId);
+    });
+  });
+};
+
 const getUserFavoriteMovieByUserId = (UserId) => {
   return new Promise((resolve, reject) => {
     const sql = `
-      SELECT m.MovieId, m.Title, f.FavoriteId, f.CreatedAt
+      SELECT m.*, f.FavoriteId, f.CreatedAt
       FROM Favorites f
       JOIN Movies m ON f.MovieId = m.MovieId
       WHERE f.UserId = ?
@@ -70,6 +81,7 @@ module.exports = {
   getAllUserFavoriteMovies,
   getUserFavoriteMovieByUserId,
   addUserFavoriteMovie,
+  deleteUserFavoriteMovie,
 };
 
 /*

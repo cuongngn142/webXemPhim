@@ -1,0 +1,158 @@
+import { fetchMovieById } from "../services/movieService.js";
+import { renderPage } from "../main.js";
+
+const API_BASE_URL = "http://localhost:3000";
+
+export function renderPlayMoviePage(movieId, movieSlugName, movieEpisode) {
+  return `
+    <section class="movie-play-section">
+    <div class="main-content">
+        <video id="video-player" controls poster="" preload="auto">
+        <source id="video-source" src="" type="video/mp4" />
+        Trình duyệt không hỗ trợ video.
+        </video>
+  
+        <div class="episodes-content">
+            <h2>Chọn tập phim</h2>
+            <div class="episodes-list"></div>
+        </div>
+    </div>
+    </section>
+  `;
+}
+
+export async function renderPlayMovieEventListener(
+  movieId,
+  movieSlugName,
+  movieEpisode
+) {
+  await renderListEpisodesMovie(movieId);
+  renderMovieById(movieId, movieEpisode, movieSlugName);
+}
+
+async function renderMovieById(movieId, movieEpisode, movieSlugName) {
+  //vì renderMoviePage trả về id r ko cần cắt url để lấy id
+  // const path = window.location.pathname;
+  // const match = path.split("/").filter((path) => path !== "");
+  // const id =
+  //   match[0] === "detail" && match[1] === "movie" && match[2] ? match[2] : null;
+
+  if (!movieId) return;
+
+  const movie = await fetchMovieById(movieId, movieEpisode);
+  const video = document.getElementById("video-player");
+  const source = document.getElementById("video-source");
+  video.poster = API_BASE_URL + movie.BackdropUrl;
+  const active = document.querySelector(".episodes-item.active");
+
+  if (!active) return;
+  const content = active.textContent;
+  const episode = parseInt(content.replace("Ep ", ""));
+
+  if (movie.Episodes[0].EpisodeNumber === episode) {
+    source.src = API_BASE_URL + movie.Episodes[0].VideoUrl;
+    video.load();
+  }
+  handleClickEpisodes(movie, movieSlugName);
+}
+
+async function renderListEpisodesMovie(movieId) {
+  const movie = await fetchMovieById(movieId);
+  const episodesList = document.querySelector(".episodes-list");
+
+  if (!movie || movie.length === 0) return;
+
+  if (episodesList && movie.Episodes?.length > 0) {
+    episodesList.innerHTML = "";
+    movie.Episodes.forEach((episode, index) => {
+      const p = document.createElement("p");
+      p.classList.add("episodes-item");
+      if (index === 0) {
+        p.classList.add("active");
+      }
+      const ep =
+        episode.EpisodeNumber < 10
+          ? "0" + episode.EpisodeNumber
+          : episode.EpisodeNumber;
+      p.textContent = `Ep ${ep}`;
+      episodesList.appendChild(p);
+    });
+  }
+}
+
+function handleClickEpisodes(movie, movieSlugName) {
+  const items = document.querySelectorAll(".episodes-item");
+
+  if (!movie || !movie.Episodes || movie.Episodes.length === 0) return;
+
+  if (items) {
+    items.forEach((item, index) => {
+      item.addEventListener("click", () => {
+        console.log("Bạn đã click item số", index + 1);
+
+        const video = document.getElementById("video-player");
+        const source = document.getElementById("video-source");
+        video.poster = API_BASE_URL + movie.BackdropUrl;
+
+        const active = document.querySelectorAll(".episodes-item.active");
+        active.forEach((el) => el.classList.remove("active"));
+        item.classList.add("active");
+
+        const episodeData = movie.Episodes[index];
+        if (episodeData && episodeData.VideoUrl) {
+          source.src = API_BASE_URL + episodeData.VideoUrl;
+          console.log(API_BASE_URL + episodeData.VideoUrl);
+          video.load();
+        }
+        const targetPath = `/play/movie/${movie.MovieId}/${movieSlugName}/${
+          index + 1
+        }`;
+        if (location.pathname !== targetPath) {
+          history.pushState({}, "", targetPath);
+        }
+        console.log("Episode được chọn:", episodeData);
+      });
+    });
+  }
+}
+
+
+
+
+// function handleClickEpisodes(movie) {
+//   const items = document.querySelectorAll(".episodes-item");
+
+//   if (items) {
+//     items.forEach((item, index) => {
+//       item.addEventListener("click", () => {
+//         console.log("bạn đã click item số ", index + 1);
+//         const video = document.getElementById("video-player");
+//         const source = document.getElementById("video-source");
+//         video.poster = API_BASE_URL + movie.BackdropUrl;
+//         const active = document.querySelector(".episodes-item.active");
+
+//         if (!active) return;
+//         const content = active.textContent;
+//         const episode = parseInt(content.replace("Ep ", ""));
+
+//         console.log(movie);
+//         console.log(episode);
+//         console.log(movie.Episodes[index].EpisodeNumber === episode);
+
+//         if (!movie || movie.length === 0) return;
+
+//         if (episodesList && movie.Episodes?.length > 0) {
+//           const p = document.createElement("p");
+//           p.classList.add("episodes-item");
+//           if (index === episode) {
+//             p.classList.add("active");
+//           }
+//         }
+//         if (movie.Episodes[index].EpisodeNumber === episode) {
+//           source.src = API_BASE_URL + movie.Episodes[index + 1].VideoUrl;
+//           video.load();
+//         }
+//       });
+//     });
+//   }
+// }

@@ -1,4 +1,3 @@
-
 export default function renderHeader() {
   return `
     <header>
@@ -8,8 +7,8 @@ export default function renderHeader() {
             <img src="/assets/icons/logo-website.png" alt="Logo" class="logo" />
             <h1 class="header-title">WebXemPhim</h1>
           </a> 
-          <a href="#">Phim Lẻ</a>
-          <a href="#">Phim Bộ</a>
+          <a href="/phimLe" class="phim-le" data-link>Phim Lẻ</a>
+          <a href="/phimBo" class="phim-bo" data-link>Phim Bộ</a>
           <a href="#phim-moi">Phim Mới</a>
           <div class="dropdown">
             <a href="#" class="dropdown-toggle">
@@ -64,6 +63,7 @@ export default function renderHeader() {
              <span class="dropdown-toggle">Full Name</span>
             <div class="dropdown-menu">
             <ul>
+            <li><span id="btn-dashboard">Dashboard</span></li>
             <li><span id="btn-logout">Đăng xuất</span></li>
             </ul>
             </div>
