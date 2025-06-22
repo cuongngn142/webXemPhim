@@ -420,7 +420,7 @@ export async function handleRegisterSubmit(e) {
   }
 
   const dataRegister ={
-    userName: userName,
+    username: userName,
     email: email,
     password: password,
     fullName: fullName

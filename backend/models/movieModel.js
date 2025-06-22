@@ -229,12 +229,22 @@ const addMovie = (movieData) => {
       }
 
       const newMovieId = this.lastID;
-      if (movieData.CategoryIds && movieData.CategoryIds.length > 0) {
+
+      // Sửa đoạn này để đảm bảo CategoryIds luôn là mảng số
+      let categoryIds = movieData.CategoryIds;
+      if (typeof categoryIds === "string") {
+        categoryIds = categoryIds
+          .split(",")
+          .map((id) => Number(id.trim()))
+          .filter(Boolean);
+      }
+      if (!Array.isArray(categoryIds)) categoryIds = [];
+
+      if (categoryIds.length > 0) {
         const insertCategorySql = `
           INSERT INTO MovieCategories (MovieId, CategoryId) VALUES (?, ?)
         `;
-
-        const insertTasks = movieData.CategoryIds.map((catId) => {
+        const insertTasks = categoryIds.map((catId) => {
           return new Promise((res, rej) => {
             db.run(insertCategorySql, [newMovieId, catId], (err) => {
               if (err) return rej(err);

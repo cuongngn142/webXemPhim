@@ -166,3 +166,30 @@ db.serialize(() => {
   console.log("✅ Database initialized xong.");
   db.close();
 });
+
+let categoryIds = movieData.CategoryIds;
+if (typeof categoryIds === "string") {
+  // Nếu là chuỗi, chuyển thành mảng số
+  categoryIds = categoryIds.split(",").map(id => Number(id.trim())).filter(Boolean);
+}
+if (!Array.isArray(categoryIds)) categoryIds = [];
+
+if (categoryIds.length > 0) {
+  const insertCategorySql = `
+    INSERT INTO MovieCategories (MovieId, CategoryId) VALUES (?, ?)
+  `;
+  const insertTasks = categoryIds.map((catId) => {
+    return new Promise((res, rej) => {
+      db.run(insertCategorySql, [newMovieId, catId], (err) => {
+        if (err) return rej(err);
+        res();
+      });
+    });
+  });
+
+  Promise.all(insertTasks)
+    .then(() => resolve({ MovieId: newMovieId }))
+    .catch(reject);
+} else {
+  resolve({ MovieId: newMovieId });
+}
