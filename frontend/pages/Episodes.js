@@ -76,6 +76,8 @@ async function loadMovieOptions() {
     .map((m) => `<option value="${m.MovieId}">${m.Title}</option>`)
     .join("");
   currentMovieId = select.value;
+  // GỌI LUÔN loadEpisodes() ở đây để hiển thị tập phim của phim đầu tiên
+  await loadEpisodes();
 }
 
 async function loadEpisodes() {

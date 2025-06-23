@@ -183,19 +183,26 @@ export async function renderPage(path) {
   }
 }
 
-async function handleClickDashBoard() {
+export function handleClickDashBoard() {
   const btn = document.querySelector("#btn-dashboard");
   if (!btn) return;
-  const userId = localStorage.getItem("userId");
-  const user = await fetchUserById(userId);
-  console.log("user", user);
 
-  btn.addEventListener("click", () => {
+  // Xóa sự kiện cũ nếu có (tránh add nhiều lần)
+  btn.replaceWith(btn.cloneNode(true));
+  const newBtn = document.querySelector("#btn-dashboard");
+
+  newBtn.addEventListener("click", async () => {
+    const userId = localStorage.getItem("userId");
+    if (!userId) {
+      alert("Bạn chưa đăng nhập!");
+      return;
+    }
+    const user = await fetchUserById(userId);
+    if (!user || !user.Roles) {
+      alert("Không lấy được thông tin người dùng!");
+      return;
+    }
     const checkRoles = user.Roles.some((role) => role.RoleName === "Admin");
-    user.Roles.forEach((role) => {
-      console.log("role", role.RoleName);
-    });
-    console.log("checkRoles", checkRoles);
     if (!checkRoles) {
       alert("Bạn không có quyền truy cập vào trang này!");
       return;
@@ -212,7 +219,7 @@ function handleActiveSideBarMenu() {
   const lisst = document.querySelectorAll(".sidebar ul li");
 
   lisst.forEach((li) => {
-    li.addEventListener("click", () => {
+    li.querySelector("a").addEventListener("click", () => {
       document
         .querySelector(".sidebar ul li.active")
         .classList.remove("active");

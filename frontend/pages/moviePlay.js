@@ -518,11 +518,16 @@ function handleNextEpisodes(movie, movieSlugName) {
 
 function handleSubmitReview(movieId) {
   const btn = document.querySelector("#submitReview");
-  btn.addEventListener("click", (e) => {
+  const userId = localStorage.getItem("userId");
+
+  btn.onclick = (e) => {
     e.preventDefault();
     // Lấy tất cả các span.active trong .star-rating
     const stars = document.querySelectorAll(".star-rating span.active");
-
+    if (!userId) {
+      alert("Vui lòng đăng nhập trước khi đánh giá!");
+      return;
+    }
     // Chuyển NodeList sang mảng để dùng map
     const starsArray = Array.from(stars);
 
@@ -537,7 +542,6 @@ function handleSubmitReview(movieId) {
 
     // Tìm số lớn nhất
     const maxStar = Math.max(...starValues);
-    const userId = localStorage.getItem("userId");
     console.log("Số sao lớn nhất được chọn:", maxStar);
     const data = {
       MovieId: movieId,
@@ -548,7 +552,7 @@ function handleSubmitReview(movieId) {
     if (addReview) {
       alert("Đánh giá thành công!");
     }
-  });
+  };
 }
 async function renderListUserReview(movieId) {
   const users = await fetchListReivews();
@@ -645,24 +649,29 @@ async function renderListUserComment(movieId) {
 
 function handleSubmitComment(movieId) {
   const btn = document.querySelector(".submit-label");
+
   if (btn) {
-    btn.addEventListener("click", () => {
+    btn.onclick = async () => {
       const checkBox = document.querySelector(".checkbox-label input");
       const isCheck = checkBox.checked ? 1 : 0;
-
-      const textArea = document.getElementById("commentArea").value;
+      const textArea = document.getElementById("commentArea");
       const userId = localStorage.getItem("userId");
+      if (!userId) {
+        alert("Vui lòng đăng nhập trước khi bình luận!");
+        return;
+      }
       const data = {
         MovieId: movieId,
         UserId: userId,
-        Content: textArea,
+        Content: textArea.value,
         isAnonymous: isCheck,
       };
-      const result = fetchAddComment(data);
-
+      const result = await fetchAddComment(data);
       if (result) {
         alert("Thêm bình luận thành công!");
+        textArea.value = ""; // Xóa nội dung sau khi gửi
+        renderListUserComment(movieId); // Reload lại danh sách comment
       }
-    });
+    };
   }
 }

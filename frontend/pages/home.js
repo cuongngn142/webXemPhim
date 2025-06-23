@@ -7,9 +7,11 @@ import { fetchCheckLogin, fetchRegisterUser } from "../services/userService.js";
 import { fetchAddFavorite, fetchListUserFavorites, fetchDeleteFavorite} from "../services/favoriteService.js";
 import { renderPage } from "../main.js";
 import slugify from "../components/slugify.js";
+import { fetchAllCategories } from "../services/categoryService.js";
 const API_URL = "http://localhost:3000";
 
-export function renderHomePage() {
+export async function renderHomePage() {
+  const dynamicSections = await renderDynamicCategorySections();
   return `    
   <section class="featured-section">
     <div class="featured-movie">
@@ -74,7 +76,8 @@ export function renderHomePage() {
     "Science Fiction",
     "science-fiction"
   )}
-`;
+  ${dynamicSections}
+  `;
 }
 
 export function renderHomeEventListener() {
@@ -108,6 +111,7 @@ export function handleMovieClickEvent() {
   document.querySelectorAll(".movie-item").forEach(item => {
   item.addEventListener("click", () => {
     console.log("Clicked:", item.dataset.id);
+  });
   });
   */
   document.body.addEventListener("click", (e) => {
@@ -616,4 +620,30 @@ export function changeForm() {
       loginForm.style.display = "block";
     }
   });
+}
+
+export async function renderDynamicCategorySections() {
+  const categories = await fetchAllCategories();
+  // Loại bỏ các category mặc định đã có section cứng
+  const defaultTypes = [
+    "High Rated",
+    "Newest",
+    "Romance",
+    "Action",
+    "Comedy",
+    "Martial Arts",
+    "Animation",
+    "Science Fiction",
+  ];
+  return categories
+    .filter((cat) => !defaultTypes.includes(cat.Name))
+    .map((cat) =>
+      createMovieListSection(
+        slugify(cat.Name), // id
+        `Phim ${cat.Name}`, // title
+        cat.Name, // type
+        slugify(cat.Name) // class
+      )
+    )
+    .join("");
 }

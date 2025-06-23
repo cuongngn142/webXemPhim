@@ -758,6 +758,10 @@ footer {
   font-size: 18px;
 }
 
+.sidebar ul li a span {
+  user-select: none;
+}
+
 .sidebar ul li a:hover {
   color: var(--main-content-color-2);
 }
@@ -986,11 +990,12 @@ footer {
   flex: 1;
   display: flex;
   flex-direction: column;
+  padding: 10px;
 }
 .form-group label {
   font-size: 0.98rem;
   color: #ffb74d;
-  margin-bottom: 4px;
+  margin-bottom: 10px;
   font-weight: 500;
   letter-spacing: 0.2px;
 }
@@ -1295,7 +1300,7 @@ footer {
 .form-group label {
   font-size: 0.98rem;
   color: #ffb74d;
-  margin-bottom: 4px;
+  margin-bottom: 10px;
   font-weight: 500;
   letter-spacing: 0.2px;
 }
@@ -1715,7 +1720,7 @@ footer {
 .episode-form-modern label {
   font-size: 0.98rem;
   color: #ffb74d;
-  margin-bottom: 4px;
+  margin-bottom: 10px;
   font-weight: 500;
   letter-spacing: 0.2px;
 }
