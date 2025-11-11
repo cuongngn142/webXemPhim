@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:3000"; 
+const API_URL = "https://website-xem-phim.onrender.com"; 
 
 export async function fetchAllCategories() {
   const res = await fetch(`${API_URL}/api/categories`);
