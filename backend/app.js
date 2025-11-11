@@ -13,7 +13,7 @@ const episodeRoute = require("./routes/episodeRoute"); // Import episodeRoute
 // Middleware
 app.use(cors({
   origin: [
-    "https://website-xem-phim-frontend.onrender.com", 
+    "https://webxemphim-fe.onrender.com", 
     "http://localhost:5500" 
   ],
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
