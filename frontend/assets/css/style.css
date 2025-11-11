@@ -330,6 +330,7 @@ footer {
 }
 
 .featured-movie .featured-movie-item {
+  position: relative;  
   overflow: hidden;
   width: 100%;
 }
