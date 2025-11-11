@@ -8,7 +8,7 @@ import { fetchAddFavorite, fetchListUserFavorites, fetchDeleteFavorite} from "..
 import { renderPage } from "../main.js";
 import slugify from "../components/slugify.js";
 import { fetchAllCategories } from "../services/categoryService.js";
-const API_URL = "http://localhost:3000";
+const API_URL = "https://website-xem-phim.onrender.com";
 
 export async function renderHomePage() {
   const dynamicSections = await renderDynamicCategorySections();
