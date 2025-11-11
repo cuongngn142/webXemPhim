@@ -11,7 +11,14 @@ const commentRoute = require("./routes/commentRoute");
 const categoryRoute = require("./routes/categoryRoute");
 const episodeRoute = require("./routes/episodeRoute"); // Import episodeRoute
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: [
+    "https://website-xem-phim-frontend.onrender.com", 
+    "http://localhost:5500" 
+  ],
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type"]
+}));
 app.use(express.json());
 
 // Public folder 'images'
