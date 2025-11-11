@@ -2,7 +2,7 @@ import { renderPage } from "../main.js";
 import { fetchMovieById } from "../services/movieService.js";
 import { fetchMoreMovies } from "../services/movieService.js";
 
-const API_BASE_URL = "http://localhost:3000";
+const API_BASE_URL = "https://website-xem-phim.onrender.com";
 
 export function renderDetailMoviePage(movieId, movieSlugName) {
   return `
